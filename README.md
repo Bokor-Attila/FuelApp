@@ -4,6 +4,12 @@ Android app for tracking fuel consumption across one or more vehicles. Log
 every refuel, get real L/100km numbers, running costs and a range estimate —
 offline, on device, no account.
 
+## Screenshots
+
+| Dashboard | Statistics | New fill-up | Vehicles |
+|---|---|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Statistics](docs/screenshots/statistics.png) | ![New fill-up](docs/screenshots/dialog.png) | ![Vehicles](docs/screenshots/vehicles.png) |
+
 ## Features
 
 - **Multiple vehicles** — keep a separate log per car, switch from the top bar.
