@@ -1,8 +1,6 @@
 package com.bokor.fuelapp
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -21,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,12 +48,14 @@ import java.util.concurrent.Executors
 @Composable
 fun OdometerScanner(
     onResult: (String) -> Unit,
+    onError: (Int) -> Unit,
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+    DisposableEffect(cameraExecutor) { onDispose { cameraExecutor.shutdown() } }
     val imageCapture = remember { ImageCapture.Builder().build() }
     
     val previewView = remember { PreviewView(context) }
@@ -129,13 +130,23 @@ fun OdometerScanner(
         
         Button(
             onClick = {
-                takePhoto(context, imageCapture, cameraExecutor) { uri ->
-                    processImage(context, uri) { text ->
-                        // Extract only digits from the recognized text
-                        val digits = text.filter { it.isDigit() }
-                        onResult(digits)
-                    }
-                }
+                takePhoto(
+                    context = context,
+                    imageCapture = imageCapture,
+                    executor = cameraExecutor,
+                    onImageCaptured = { uri ->
+                        processImage(
+                            context = context,
+                            uri = uri,
+                            onTextFound = { text ->
+                                val reading = longestDigitRun(text)
+                                if (reading == null) onError(R.string.scan_no_digits) else onResult(reading)
+                            },
+                            onFailure = { onError(R.string.scan_failed) }
+                        )
+                    },
+                    onFailure = { onError(R.string.scan_failed) }
+                )
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -150,7 +161,8 @@ private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture,
     executor: ExecutorService,
-    onImageCaptured: (Uri) -> Unit
+    onImageCaptured: (Uri) -> Unit,
+    onFailure: () -> Unit
 ) {
     val photoFile = File(context.cacheDir, "odometer_scan.jpg")
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -160,41 +172,49 @@ private fun takePhoto(
         executor,
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                // Crop the image to the center 80% width and specific height before processing
-                val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-                val width = bitmap.width
-                val height = bitmap.height
-                
-                // Calculate crop area based on the UI overlay logic (80% width, specific aspect ratio)
-                val cropWidth = (width * 0.8).toInt()
-                val cropHeight = (height * 0.2).toInt() // Approximating the 100dp height
-                val cropLeft = (width - cropWidth) / 2
-                val cropTop = (height - cropHeight) / 2
-                
-                val croppedBitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropWidth, cropHeight)
-                photoFile.outputStream().use { 
-                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, it)
-                }
-
+                // The whole frame is recognised rather than a hand-cropped band: the previous
+                // crop assumed the preview and the capture shared an aspect ratio and ignored
+                // EXIF rotation, so it read the wrong strip on most devices. InputImage applies
+                // the rotation itself, and longestDigitRun picks the odometer out of the text.
                 onImageCaptured(Uri.fromFile(photoFile))
             }
 
             override fun onError(exception: ImageCaptureException) {
                 exception.printStackTrace()
+                onFailure()
             }
         }
     )
 }
 
-private fun processImage(context: Context, uri: Uri, onTextFound: (String) -> Unit) {
-    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    val image = InputImage.fromFilePath(context, uri)
-    
-    recognizer.process(image)
-        .addOnSuccessListener { visionText ->
-            onTextFound(visionText.text)
-        }
-        .addOnFailureListener { e ->
-            e.printStackTrace()
-        }
+/**
+ * Picks the most plausible odometer reading out of recognised text: the longest run of
+ * digits, which beats concatenating every digit on the dashboard into one number.
+ */
+fun longestDigitRun(text: String): String? =
+    Regex("""\d+""").findAll(text)
+        .map { it.value }
+        .maxByOrNull { it.length }
+        ?.takeIf { it.isNotEmpty() }
+
+private fun processImage(
+    context: Context,
+    uri: Uri,
+    onTextFound: (String) -> Unit,
+    onFailure: () -> Unit
+) {
+    try {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        val image = InputImage.fromFilePath(context, uri)
+
+        recognizer.process(image)
+            .addOnSuccessListener { visionText -> onTextFound(visionText.text) }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+                onFailure()
+            }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        onFailure()
+    }
 }

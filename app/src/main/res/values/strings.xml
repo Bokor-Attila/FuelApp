@@ -59,4 +59,13 @@
     <string name="more_options">More options</string>
     <string name="export_csv">Export CSV (Excel)</string>
     <string name="import_csv">Import CSV (Excel)</string>
+    <string name="entry_deleted">Fill-up deleted</string>
+    <string name="undo">Undo</string>
+    <string name="no_entries">No fill-ups yet. Tap + to log your first one.</string>
+    <string name="csv_imported">Imported %1$d fill-ups</string>
+    <string name="csv_import_empty">No fill-ups found in that file</string>
+    <string name="csv_import_failed">Could not read that file</string>
+    <string name="csv_export_failed">Could not export the log</string>
+    <string name="scan_no_digits">No numbers recognised. Try again with the odometer filling the box.</string>
+    <string name="scan_failed">Scanning failed. Enter the reading manually.</string>
 </resources>

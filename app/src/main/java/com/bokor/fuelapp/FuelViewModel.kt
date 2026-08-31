@@ -92,6 +92,14 @@ class FuelViewModel(
         }
     }
 
+    /** Re-inserts a deleted entry with its original id, backing the undo action. */
+    fun restoreEntry(entry: FuelEntry) {
+        viewModelScope.launch {
+            fuelDao.insert(entry)
+            FuelWidgetProvider.triggerUpdate(application)
+        }
+    }
+
     /**
      * Rows naming a vehicle are matched to it by name, creating it when unknown, so a
      * multi-vehicle export restores fully. Rows without a name land on the current vehicle.
