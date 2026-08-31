@@ -112,14 +112,11 @@ transmitted anywhere.
 
 ## License
 
-Copyright (C) 2026 Attila Bokor
+Copyright 2026 Attila Bokor
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
+Licensed under the [Apache License, Version 2.0](LICENSE). You may not use this
+work except in compliance with the License.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the [GNU General Public License](LICENSE) for more
-details.
+Apache-2.0 is deliberate rather than copyleft: the app links Google's ML Kit for
+on-device text recognition, which is a proprietary binary, and a GPL licence
+would be inconsistent with that.
