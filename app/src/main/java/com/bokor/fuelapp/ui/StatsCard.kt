@@ -85,8 +85,14 @@ fun MainStatsCard(stats: FuelStats, currency: String) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     StatItem(stringResource(R.string.cost_per_km), "${String.format(Locale.getDefault(), "%.2f", stats.costPerKm)} $currency")
-                    StatItem("Best", "${String.format(Locale.getDefault(), "%.1f", stats.bestConsumption)}")
-                    StatItem("Worst", "${String.format(Locale.getDefault(), "%.1f", stats.worstConsumption)}")
+                    StatItem(
+                        stringResource(R.string.best_tank),
+                        "${String.format(Locale.getDefault(), "%.1f", stats.bestConsumption)} ${stringResource(R.string.consumption_unit)}"
+                    )
+                    StatItem(
+                        stringResource(R.string.worst_tank),
+                        "${String.format(Locale.getDefault(), "%.1f", stats.worstConsumption)} ${stringResource(R.string.consumption_unit)}"
+                    )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

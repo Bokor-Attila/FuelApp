@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -86,6 +87,7 @@ fun FuelDashboard(
     var showVehicleMenu by remember { mutableStateOf(false) }
     var showVehicleManager by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+    var showStatistics by remember { mutableStateOf(false) }
     val stats = calculateStats(entries, selectedVehicle?.tankCapacity)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -117,6 +119,16 @@ fun FuelDashboard(
                 }
             }
         }
+    }
+
+    if (showStatistics) {
+        StatisticsScreen(
+            entries = entries,
+            stats = stats,
+            currency = currency,
+            onBack = { showStatistics = false }
+        )
+        return
     }
 
     Scaffold(
@@ -165,6 +177,14 @@ fun FuelDashboard(
                             Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
                         }
                         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.statistics)) },
+                                onClick = {
+                                    showMenu = false
+                                    showStatistics = true
+                                },
+                                leadingIcon = { Icon(Icons.Default.QueryStats, contentDescription = null) }
+                            )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.export_csv)) },
                                 onClick = {

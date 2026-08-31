@@ -7,6 +7,9 @@ data class FuelStats(
     val avgConsumption: Double = 0.0,
     val bestConsumption: Double = 0.0,
     val worstConsumption: Double = 0.0,
+    /** The tanks behind the best and worst figures, so the UI can date them. */
+    val bestTank: TankConsumption? = null,
+    val worstTank: TankConsumption? = null,
     val costPerKm: Double = 0.0,
     val avgDistance: Double = 0.0,
     val totalDistance: Double = 0.0,
@@ -46,30 +49,10 @@ fun calculateStats(entries: List<FuelEntry>, tankCapacity: Double? = null): Fuel
     val avgPrice = if (entries.isEmpty()) 0.0 else entries.map { it.pricePerLiter }.average()
     val costPerKm = if (totalDistance > 0) totalCost / totalDistance else 0.0
     
-    val individualConsumptions = mutableListOf<Double>()
-    val distances = mutableListOf<Double>()
-    
-    var accumulatedLiters = 0.0
-    var lastFullEntry: FuelEntry? = null
-    
-    for (entry in sorted) {
-        if (lastFullEntry == null) {
-            if (entry.isFull) lastFullEntry = entry
-            continue
-        }
-        
-        accumulatedLiters += entry.liters
-        
-        if (entry.isFull) {
-            val dist = entry.odometer - lastFullEntry.odometer
-            if (dist > 0) {
-                distances.add(dist)
-                individualConsumptions.add((accumulatedLiters / dist) * 100)
-            }
-            lastFullEntry = entry
-            accumulatedLiters = 0.0
-        }
-    }
+    // Shared with the statistics screen so both read the same tank-to-tank windows.
+    val tanks = tankConsumptions(entries)
+    val best = tanks.minByOrNull { it.consumption }
+    val worst = tanks.maxByOrNull { it.consumption }
 
     val predictedRange = if (avgConsumption > 0 && tankCapacity != null && tankCapacity > 0) {
         (tankCapacity / avgConsumption) * 100
@@ -79,10 +62,12 @@ fun calculateStats(entries: List<FuelEntry>, tankCapacity: Double? = null): Fuel
     
     return FuelStats(
         avgConsumption = avgConsumption,
-        bestConsumption = individualConsumptions.minOrNull() ?: 0.0,
-        worstConsumption = individualConsumptions.maxOrNull() ?: 0.0,
+        bestConsumption = best?.consumption ?: 0.0,
+        worstConsumption = worst?.consumption ?: 0.0,
+        bestTank = best,
+        worstTank = worst,
         costPerKm = costPerKm,
-        avgDistance = distances.average().takeIf { !it.isNaN() } ?: 0.0,
+        avgDistance = tanks.map { it.distance }.average().takeIf { !it.isNaN() } ?: 0.0,
         totalDistance = totalDistance,
         totalLiters = entries.sumOf { it.liters },
         totalCost = totalCost,
