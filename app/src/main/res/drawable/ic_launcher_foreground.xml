@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A fuel drop carrying two level marks: fuel plus measurement. Everything sits inside the
+    66dp safe zone of the 108dp adaptive canvas, so no launcher mask can clip it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,32 C54,32 36,52 36,64 C36,74 44,82 54,82 C64,82 72,74 72,64 C72,52 54,32 54,32 Z" />
+    <path
+        android:pathData="M42,70 L66,70"
+        android:strokeColor="#FF00564D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M47,60 L61,60"
+        android:strokeColor="#FF00564D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+</vector>

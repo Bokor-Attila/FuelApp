@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">FuelApp</string>
+    <string name="add_entry">New Fill-up</string>
+    <string name="odometer">Odometer (km)</string>
+    <string name="liters">Amount (liters)</string>
+    <string name="price_per_liter">Price per liter (%1$s)</string>
+    <string name="total_price">Total price (%1$s)</string>
+    <string name="calculate">Calculate</string>
+    <string name="consumption_label">Avg. Consumption</string>
+    <string name="recent_fillups">Recent Fill-ups</string>
+    <string name="dashboard_title">Fuel Log</string>
+    <string name="edit_entry">Edit Entry</string>
+    <string name="delete_entry">Delete Entry</string>
+    <string name="error_odometer_low">Odometer must be higher than previous (%1$.0f km)</string>
+    <string name="error_odometer_required">Enter the odometer reading</string>
+    <string name="error_amount_required">Enter the amount and price per liter, or the total</string>
+    <string name="stats_total_distance">Total Distance</string>
+    <string name="stats_total_fuel">Total Fuel</string>
+    <string name="stats_total_cost">Total Cost</string>
+    <string name="scan_odometer">Scan Odometer</string>
+    <string name="camera_permission_denied">Camera permission is required to scan the odometer.</string>
+    <string name="take_picture">Take Picture</string>
+    <string name="price_trend">Price Trend</string>
+    <string name="est_range">Estimated Range</string>
+    <string name="km_per_tank">km / full tank</string>
+    <string name="total_amount">Total Amount (%1$s)</string>
+    <string name="auto_calculate_hint">Leave one empty to auto-calculate</string>
+    <string name="date_label">Date</string>
+    <!-- Vehicles -->
+    <string name="default_vehicle_name">My Car</string>
+    <string name="vehicles">Vehicles</string>
+    <string name="add_vehicle">Add vehicle</string>
+    <string name="edit_vehicle">Edit vehicle</string>
+    <string name="delete_vehicle">Delete vehicle</string>
+    <string name="vehicle_name">Name</string>
+    <string name="tank_capacity">Tank capacity (liters, optional)</string>
+    <string name="switch_vehicle">Switch vehicle</string>
+    <string name="delete_vehicle_confirm">Delete %1$s and its %2$d fill-ups? This cannot be undone.</string>
+    <string name="delete_vehicle_confirm_empty">Delete %1$s?</string>
+    <string name="last_vehicle_hint">The last vehicle cannot be deleted.</string>
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="currency_label">Currency</string>
+    <string name="currency_hint">Code or symbol shown next to amounts</string>
+    <!-- Units and labels -->
+    <string name="consumption_unit">L/100km</string>
+    <string name="price_per_liter_unit">%1$s/L</string>
+    <string name="cost_per_km">Cost/km</string>
+    <string name="avg_distance">Avg distance: %1$d km</string>
+    <string name="efficiency_trend">Efficiency Trend</string>
+    <string name="liters_value">%1$s liters</string>
+    <string name="full_tank">Full tank</string>
+    <string name="full_tank_hint">Uncheck if this was a partial refuel</string>
+    <string name="partial">PARTIAL</string>
+    <!-- Actions -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="more_options">More options</string>
+    <string name="export_csv">Export CSV (Excel)</string>
+    <string name="import_csv">Import CSV (Excel)</string>
+</resources>

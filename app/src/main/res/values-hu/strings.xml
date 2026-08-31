@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">FuelApp</string>
+    <string name="add_entry">Új tankolás</string>
+    <string name="odometer">Kilométeróra állása (km)</string>
+    <string name="liters">Mennyiség (liter)</string>
+    <string name="price_per_liter">Egységár (%1$s/liter)</string>
+    <string name="total_price">Végösszeg (%1$s)</string>
+    <string name="calculate">Kiszámítás</string>
+    <string name="consumption_label">Átlagfogyasztás</string>
+    <string name="recent_fillups">Legutóbbi tankolások</string>
+    <string name="dashboard_title">Üzemanyag Napló</string>
+    <string name="edit_entry">Bejegyzés szerkesztése</string>
+    <string name="delete_entry">Törlés</string>
+    <string name="error_odometer_low">A kilométeróra állása nem lehet kevesebb az előzőnél (%1$.0f km)</string>
+    <string name="error_odometer_required">Add meg a kilométeróra állását</string>
+    <string name="error_amount_required">Add meg a mennyiséget és az egységárat, vagy a végösszeget</string>
+    <string name="stats_total_distance">Összes távolság</string>
+    <string name="stats_total_fuel">Összes üzemanyag</string>
+    <string name="stats_total_cost">Összes költség</string>
+    <string name="scan_odometer">Kilométeróra leolvasása</string>
+    <string name="camera_permission_denied">Kamera engedély szükséges a leolvasáshoz.</string>
+    <string name="take_picture">Fénykép készítése</string>
+    <string name="price_trend">Árfolyam trend</string>
+    <string name="est_range">Becsült hatótáv</string>
+    <string name="km_per_tank">km / teli tank</string>
+    <string name="total_amount">Összeg (%1$s)</string>
+    <string name="auto_calculate_hint">Hagyja üresen az egyiket az automatikus számításhoz</string>
+    <string name="date_label">Dátum</string>
+    <!-- Járművek -->
+    <string name="default_vehicle_name">Autóm</string>
+    <string name="vehicles">Járművek</string>
+    <string name="add_vehicle">Jármű hozzáadása</string>
+    <string name="edit_vehicle">Jármű szerkesztése</string>
+    <string name="delete_vehicle">Jármű törlése</string>
+    <string name="vehicle_name">Név</string>
+    <string name="tank_capacity">Tank űrtartalma (liter, opcionális)</string>
+    <string name="switch_vehicle">Jármű váltása</string>
+    <string name="delete_vehicle_confirm">Törlöd a(z) %1$s járművet és a hozzá tartozó %2$d tankolást? A művelet nem vonható vissza.</string>
+    <string name="delete_vehicle_confirm_empty">Törlöd a(z) %1$s járművet?</string>
+    <string name="last_vehicle_hint">Az utolsó jármű nem törölhető.</string>
+    <!-- Beállítások -->
+    <string name="settings">Beállítások</string>
+    <string name="currency_label">Pénznem</string>
+    <string name="currency_hint">Az összegek mellett megjelenő kód vagy szimbólum</string>
+    <!-- Mértékegységek és címkék -->
+    <string name="consumption_unit">L/100km</string>
+    <string name="price_per_liter_unit">%1$s/L</string>
+    <string name="cost_per_km">Költség/km</string>
+    <string name="avg_distance">Átlagos táv: %1$d km</string>
+    <string name="efficiency_trend">Fogyasztási trend</string>
+    <string name="liters_value">%1$s liter</string>
+    <string name="full_tank">Tele tank</string>
+    <string name="full_tank_hint">Vedd ki a pipát, ha csak részben tankoltál</string>
+    <string name="partial">RÉSZLEGES</string>
+    <!-- Műveletek -->
+    <string name="save">Mentés</string>
+    <string name="cancel">Mégse</string>
+    <string name="delete">Törlés</string>
+    <string name="more_options">További lehetőségek</string>
+    <string name="export_csv">CSV exportálása (Excel)</string>
+    <string name="import_csv">CSV importálása (Excel)</string>
+</resources>
