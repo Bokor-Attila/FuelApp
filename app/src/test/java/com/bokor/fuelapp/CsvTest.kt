@@ -1,6 +1,9 @@
 package com.bokor.fuelapp
 
+import com.bokor.fuelapp.data.CSV_HEADER
 import com.bokor.fuelapp.data.FuelEntry
+import com.bokor.fuelapp.data.buildCsv
+import com.bokor.fuelapp.data.parseCsv
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

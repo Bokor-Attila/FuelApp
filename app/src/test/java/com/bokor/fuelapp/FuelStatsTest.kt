@@ -1,6 +1,8 @@
 package com.bokor.fuelapp
 
 import com.bokor.fuelapp.data.FuelEntry
+import com.bokor.fuelapp.domain.calculateConsumption
+import com.bokor.fuelapp.domain.calculateStats
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
