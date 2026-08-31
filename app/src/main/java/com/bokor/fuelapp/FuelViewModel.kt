@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.bokor.fuelapp.data.FuelDao
 import com.bokor.fuelapp.data.FuelEntry
+import com.bokor.fuelapp.data.ImportedEntry
 import com.bokor.fuelapp.data.SettingsRepository
 import com.bokor.fuelapp.data.Vehicle
 import com.bokor.fuelapp.data.VehicleDao

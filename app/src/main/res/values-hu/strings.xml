@@ -68,4 +68,33 @@
     <string name="csv_export_failed">A napló exportálása nem sikerült</string>
     <string name="scan_no_digits">Nem sikerült számot felismerni. Töltsd ki a keretet a kilométeróra állásával.</string>
     <string name="scan_failed">A leolvasás nem sikerült. Add meg kézzel az értéket.</string>
+    <!-- Statisztika -->
+    <string name="statistics">Statisztika</string>
+    <string name="back">Vissza</string>
+    <string name="not_enough_data">Még nincs elég adat</string>
+    <string name="spending">Költés</string>
+    <string name="this_month">Ebben a hónapban</string>
+    <string name="last_month">Előző hónapban</string>
+    <string name="year_to_date">Idén eddig</string>
+    <string name="monthly_average">Havi átlag</string>
+    <string name="usage">Használat</string>
+    <string name="km_per_month">Havi táv</string>
+    <string name="liters_per_month">Havi üzemanyag</string>
+    <string name="days_between_fillups">Tankolások közti napok</string>
+    <string name="next_fillup_in">Következő tankolás kb. %1$d nap múlva</string>
+    <string name="next_fillup_due">Hamarosan tankolni kell</string>
+    <string name="price_section">Ár</string>
+    <string name="cheapest">Legolcsóbb</string>
+    <string name="most_expensive">Legdrágább</string>
+    <string name="latest_price">Legutóbbi</string>
+    <string name="above_average">%1$s%%-kal az átlagod felett</string>
+    <string name="below_average">%1$s%%-kal az átlagod alatt</string>
+    <string name="at_average">Az átlagodnak megfelelő</string>
+    <string name="consumption_section">Fogyasztás</string>
+    <string name="best_tank">Legjobb tank</string>
+    <string name="worst_tank">Leggyengébb tank</string>
+    <string name="trend_worse">Az utolsó tank %1$s%%-kal rosszabb az átlagodnál</string>
+    <string name="trend_better">Az utolsó tank %1$s%%-kal jobb az átlagodnál</string>
+    <string name="trend_steady">Az utolsó tank az átlagodnak megfelelő</string>
+    <string name="by_month">Havi bontás</string>
 </resources>

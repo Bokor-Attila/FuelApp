@@ -15,15 +15,21 @@ offline, on device, no account.
 - **Partial refuels** — entries can be marked as not-a-full-tank. Consumption is
   measured tank-to-tank between full fills, so partials are accounted for without
   skewing the average.
-- **Statistics** — average, best and worst consumption, cost per km, average
-  distance between refuels, and totals. Give a vehicle its tank size and you also
-  get a predicted range.
+- **Statistics** — the dashboard shows average consumption, totals, cost per km
+  and, when the vehicle has a tank size, a predicted range. A separate Statistics
+  screen adds spending this month, last month and year to date; distance and fuel
+  per month; how often you fill up and roughly when the next one is due; your
+  cheapest, dearest and latest price with dates; your best and worst tank; whether
+  the last tank was better or worse than your average; and a month-by-month
+  breakdown.
 - **Charts** — price-per-liter trend and efficiency trend over time, drawn natively.
 - **Odometer scanning** — point the camera at the odometer and the reading is
   recognised on device via ML Kit; no image leaves the phone.
 - **CSV import / export** — share every vehicle's log out as CSV and read it back
   in; rows are matched to vehicles by name, and older exports still import.
 - **Home screen widget** — current consumption at a glance, tap to add an entry.
+- **Forgiving input** — decimal commas as well as points, undo when you delete a
+  fill-up, and a reason whenever something is rejected or fails.
 - **Localised** — English and Hungarian.
 
 ## Install
@@ -67,10 +73,11 @@ to `local.properties` on first sync and is not tracked.
 ./gradlew assembleDebug       # build
 ```
 
-Consumption math and CSV handling live in plain top-level functions
-(`calculateStats`, `calculateConsumption`, `buildCsv`, `parseCsv`) so they are
-covered by JVM unit tests without an emulator. `FuelStatsTest` is the place to add
-cases when the tank-to-tank rules change.
+Everything in `domain/` and `data/CsvIo.kt` is pure functions over the entry
+list, so it is covered by JVM unit tests without an emulator: `FuelStatsTest`
+for the tank-to-tank rules, `StatisticsTest` for spending, usage, price and
+trend, `CsvTest` for the import/export round trip, plus parsing tests for
+decimal commas and odometer readings.
 
 Database migrations and DAO behaviour are covered by instrumented tests, which need
 a connected device or a running emulator:
@@ -90,25 +97,43 @@ push to `main`, every `feature/**` branch and every pull request. Tagging a comm
 
 ## Architecture
 
-Single-module app, Kotlin and Jetpack Compose throughout.
+Single-module app, Kotlin and Jetpack Compose throughout, split into three layers.
 
-| Path | Role |
-|---|---|
-| `MainActivity.kt` | Compose UI, charts, statistics, CSV handling |
-| `FuelViewModel.kt` | State, exposes the selected vehicle's entries as a `StateFlow` |
-| `data/FuelData.kt` | Room entities, DAOs, database and migrations |
-| `data/SettingsRepository.kt` | Currency and selected vehicle, stored in DataStore |
-| `FuelWidgetProvider.kt` | Home screen widget |
-| `OdometerScanner.kt` | CameraX preview and ML Kit text recognition |
+```
+com.bokor.fuelapp
+├── MainActivity.kt            Activity, hosts the dashboard
+├── FuelViewModel.kt           Selected vehicle, entries and settings as StateFlows
+├── FuelWidgetProvider.kt      Home screen widget
+├── OdometerScanner.kt         CameraX preview and ML Kit text recognition
+├── data/
+│   ├── FuelData.kt            Room entities, DAOs, database and migrations
+│   ├── SettingsRepository.kt  Currency and selected vehicle, in DataStore
+│   └── CsvIo.kt               CSV building, parsing, import and export
+├── domain/
+│   ├── FuelStats.kt           Dashboard figures, tank-to-tank consumption
+│   ├── Statistics.kt          Spending, usage, price and trend analysis
+│   └── AmountParsing.kt       Comma- and point-tolerant number parsing
+└── ui/
+    ├── FuelDashboard.kt       Main screen
+    ├── StatisticsScreen.kt    Statistics screen
+    ├── StatsCard.kt           Headline consumption card
+    ├── FuelEntryItem.kt       A row in the log
+    ├── AddFuelEntryDialog.kt  Add and edit a fill-up
+    ├── VehicleDialogs.kt      Vehicle management and settings
+    ├── charts/                Price and efficiency charts
+    └── theme/                 Material 3 theme
+```
 
-Data is stored locally in a Room database (`fuel_database`). Nothing is
-transmitted anywhere.
+The `domain` layer holds no Android types, so every calculation the app shows is
+covered by plain JVM unit tests. Data lives in a local Room database
+(`fuel_database`) and nothing is transmitted anywhere.
 
 ## Roadmap
 
-- Signed, R8-minified release builds (the debug APK is large and unshrunk)
-- Split `MainActivity.kt` into UI, chart and domain layers
-- Per-vehicle currency, and imperial units (mpg) alongside L/100km
+- Imperial units (miles and mpg) alongside kilometres and L/100km
+- Per-vehicle currency
+- A repository layer and dependency injection in place of the manual factory
+- Running the instrumented tests in CI
 
 ## License
 

@@ -68,4 +68,33 @@
     <string name="csv_export_failed">Could not export the log</string>
     <string name="scan_no_digits">No numbers recognised. Try again with the odometer filling the box.</string>
     <string name="scan_failed">Scanning failed. Enter the reading manually.</string>
+    <!-- Statistics -->
+    <string name="statistics">Statistics</string>
+    <string name="back">Back</string>
+    <string name="not_enough_data">Not enough data yet</string>
+    <string name="spending">Spending</string>
+    <string name="this_month">This month</string>
+    <string name="last_month">Last month</string>
+    <string name="year_to_date">Year to date</string>
+    <string name="monthly_average">Monthly average</string>
+    <string name="usage">Usage</string>
+    <string name="km_per_month">Distance per month</string>
+    <string name="liters_per_month">Fuel per month</string>
+    <string name="days_between_fillups">Days between fill-ups</string>
+    <string name="next_fillup_in">Next fill-up in about %1$d days</string>
+    <string name="next_fillup_due">A fill-up is about due</string>
+    <string name="price_section">Price</string>
+    <string name="cheapest">Cheapest</string>
+    <string name="most_expensive">Most expensive</string>
+    <string name="latest_price">Latest</string>
+    <string name="above_average">%1$s%% above your average</string>
+    <string name="below_average">%1$s%% below your average</string>
+    <string name="at_average">In line with your average</string>
+    <string name="consumption_section">Consumption</string>
+    <string name="best_tank">Best tank</string>
+    <string name="worst_tank">Worst tank</string>
+    <string name="trend_worse">Last tank %1$s%% worse than your average</string>
+    <string name="trend_better">Last tank %1$s%% better than your average</string>
+    <string name="trend_steady">Last tank is in line with your average</string>
+    <string name="by_month">By month</string>
 </resources>
