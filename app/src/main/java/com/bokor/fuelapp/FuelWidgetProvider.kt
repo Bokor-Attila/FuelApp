@@ -15,15 +15,43 @@ import java.util.Locale
 class FuelWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+        // The data load is asynchronous, so the broadcast is held open until every widget has
+        // been written. Without this the receiver returns first and the process can be killed
+        // before the update lands, leaving a stale number on the home screen.
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val app = context.applicationContext as FuelApplication
+                val vehicles = app.database.vehicleDao().getAllVehiclesOnce()
+                val storedId = app.settings.selectedVehicleId.first()
+                val vehicle = vehicles.firstOrNull { it.id == storedId } ?: vehicles.firstOrNull()
+
+                val entries = if (vehicle == null) {
+                    emptyList()
+                } else {
+                    app.database.fuelDao().getEntriesForVehicle(vehicle.id).first()
+                }
+                val consumption = calculateConsumption(entries)
+                val label = vehicle?.name ?: context.getString(R.string.app_name)
+
+                for (appWidgetId in appWidgetIds) {
+                    updateAppWidget(context, appWidgetManager, appWidgetId, label, consumption)
+                }
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 
-    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+    private fun updateAppWidget(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        label: String,
+        consumption: Double
+    ) {
         val views = RemoteViews(context.packageName, R.layout.fuel_widget)
 
-        // Intent to launch MainActivity
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra("EXTRA_OPEN_ADD_DIALOG", true)
         }
@@ -34,31 +62,12 @@ class FuelWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.widget_add_button, pendingIntent)
         views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
-        // Fetch data and update views
-        val app = context.applicationContext as FuelApplication
-        CoroutineScope(Dispatchers.IO).launch {
-            // Mirrors the dashboard: whichever vehicle is currently selected.
-            val vehicles = app.database.vehicleDao().getAllVehiclesOnce()
-            val storedId = app.settings.selectedVehicleId.first()
-            val vehicle = vehicles.firstOrNull { it.id == storedId } ?: vehicles.firstOrNull()
-
-            val entries = if (vehicle == null) {
-                emptyList()
-            } else {
-                app.database.fuelDao().getEntriesForVehicle(vehicle.id).first()
-            }
-            val consumption = calculateConsumption(entries)
-
-            views.setTextViewText(
-                R.id.widget_label,
-                vehicle?.name ?: context.getString(R.string.app_name)
-            )
-            views.setTextViewText(
-                R.id.widget_consumption,
-                String.format(Locale.getDefault(), "%.2f", consumption)
-            )
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-        }
+        views.setTextViewText(R.id.widget_label, label)
+        views.setTextViewText(
+            R.id.widget_consumption,
+            String.format(Locale.getDefault(), "%.2f", consumption)
+        )
+        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     companion object {

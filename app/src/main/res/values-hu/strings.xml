@@ -59,4 +59,13 @@
     <string name="more_options">További lehetőségek</string>
     <string name="export_csv">CSV exportálása (Excel)</string>
     <string name="import_csv">CSV importálása (Excel)</string>
+    <string name="entry_deleted">Tankolás törölve</string>
+    <string name="undo">Visszavonás</string>
+    <string name="no_entries">Még nincs tankolás. Koppints a + gombra az elsőhöz.</string>
+    <string name="csv_imported">%1$d tankolás importálva</string>
+    <string name="csv_import_empty">Nem található tankolás a fájlban</string>
+    <string name="csv_import_failed">A fájl nem olvasható</string>
+    <string name="csv_export_failed">A napló exportálása nem sikerült</string>
+    <string name="scan_no_digits">Nem sikerült számot felismerni. Töltsd ki a keretet a kilométeróra állásával.</string>
+    <string name="scan_failed">A leolvasás nem sikerült. Add meg kézzel az értéket.</string>
 </resources>

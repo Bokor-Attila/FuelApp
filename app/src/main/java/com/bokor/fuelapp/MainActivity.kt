@@ -11,6 +11,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -56,6 +60,9 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -80,6 +87,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -164,20 +172,39 @@ fun FuelDashboard(
     val stats = calculateStats(entries, selectedVehicle?.tankCapacity)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    // Resources rather than Context: the count is dynamic, so the lookup happens at call time.
+    val resources = LocalResources.current
+
+    val importFailed = stringResource(R.string.csv_import_failed)
+    val importEmpty = stringResource(R.string.csv_import_empty)
+    val exportFailed = stringResource(R.string.csv_export_failed)
+    val entryDeleted = stringResource(R.string.entry_deleted)
+    val undoLabel = stringResource(R.string.undo)
 
     val csvPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            val importedEntries = importEntriesFromCsv(context, it)
-            if (importedEntries.isNotEmpty()) {
-                viewModel.importEntries(importedEntries)
+            val imported = importEntriesFromCsv(context, it)
+            scope.launch {
+                when {
+                    imported == null -> snackbarHostState.showSnackbar(importFailed)
+                    imported.isEmpty() -> snackbarHostState.showSnackbar(importEmpty)
+                    else -> {
+                        viewModel.importEntries(imported)
+                        snackbarHostState.showSnackbar(
+                            resources.getString(R.string.csv_imported, imported.size)
+                        )
+                    }
+                }
             }
         }
     }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LargeTopAppBar(
                 title = { Text(selectedVehicle?.name ?: stringResource(R.string.dashboard_title)) },
@@ -225,7 +252,11 @@ fun FuelDashboard(
                                 text = { Text(stringResource(R.string.export_csv)) },
                                 onClick = {
                                     showMenu = false
-                                    scope.launch { exportEntriesToCsv(context, viewModel.entriesForExport()) }
+                                    scope.launch {
+                                        if (!exportEntriesToCsv(context, viewModel.entriesForExport())) {
+                                            snackbarHostState.showSnackbar(exportFailed)
+                                        }
+                                    }
                                 },
                                 leadingIcon = { Icon(Icons.Default.FileUpload, contentDescription = null) }
                             )
@@ -282,6 +313,16 @@ fun FuelDashboard(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
+            if (entries.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.no_entries),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
+                }
+            }
             items(entries.size) { index ->
                 val entry = entries[index]
                 FuelEntryItem(
@@ -289,7 +330,18 @@ fun FuelDashboard(
                     allEntries = entries,
                     currency = currency,
                     onEdit = { entryToEdit = it },
-                    onDelete = { viewModel.deleteEntry(it) }
+                    onDelete = { deleted ->
+                        viewModel.deleteEntry(deleted)
+                        scope.launch {
+                            val action = snackbarHostState.showSnackbar(
+                                message = entryDeleted,
+                                actionLabel = undoLabel
+                            )
+                            if (action == SnackbarResult.ActionPerformed) {
+                                viewModel.restoreEntry(deleted)
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -680,10 +732,11 @@ fun buildCsv(rows: List<Pair<FuelEntry, String>>): String {
     return CSV_HEADER + "\n" + body
 }
 
-fun exportEntriesToCsv(context: android.content.Context, rows: List<Pair<FuelEntry, String>>) {
+/** @return true when the share sheet was launched, false when the file could not be written. */
+fun exportEntriesToCsv(context: android.content.Context, rows: List<Pair<FuelEntry, String>>): Boolean {
     val fullCsv = buildCsv(rows)
 
-    try {
+    return try {
         val fileName = "fuel_log_${System.currentTimeMillis()}.csv"
         val file = File(context.cacheDir, fileName)
         file.writeText(fullCsv)
@@ -700,8 +753,10 @@ fun exportEntriesToCsv(context: android.content.Context, rows: List<Pair<FuelEnt
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(intent, "Export Fuel Data"))
+        true
     } catch (e: Exception) {
         e.printStackTrace()
+        false
     }
 }
 
@@ -745,13 +800,14 @@ fun parseCsv(lines: Sequence<String>): List<ImportedEntry> {
     return entries
 }
 
-fun importEntriesFromCsv(context: android.content.Context, uri: android.net.Uri): List<ImportedEntry> = try {
+/** @return the parsed rows, or null when the file could not be read at all. */
+fun importEntriesFromCsv(context: android.content.Context, uri: android.net.Uri): List<ImportedEntry>? = try {
     context.contentResolver.openInputStream(uri)?.use { input ->
         parseCsv(input.bufferedReader().lineSequence())
-    } ?: emptyList()
+    }
 } catch (e: Exception) {
     e.printStackTrace()
-    emptyList()
+    null
 }
 
 @Composable
@@ -1101,6 +1157,7 @@ fun AddFuelEntryDialog(
     // Fields stay unflagged until the first submit, so an untouched form does not open in red.
     var submitAttempted by remember { mutableStateOf(false) }
     var showScanner by remember { mutableStateOf(false) }
+    var scanError by remember { mutableStateOf<Int?>(null) }
     
     val context = LocalContext.current
     val odometerTooLowMessage = stringResource(R.string.error_odometer_low, lastOdometer)
@@ -1140,6 +1197,10 @@ fun AddFuelEntryDialog(
                         odometer = result
                         showScanner = false
                     },
+                    onError = { messageRes ->
+                        scanError = messageRes
+                        showScanner = false
+                    },
                     onCancel = { showScanner = false }
                 )
             }
@@ -1150,12 +1211,21 @@ fun AddFuelEntryDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (initialEntry == null) stringResource(R.string.add_entry) else stringResource(R.string.edit_entry)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                // Without this the confirm button is unreachable behind the keyboard on
+                // short screens and in landscape.
+                modifier = Modifier
+                    .heightIn(max = 320.dp)
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+            ) {
                 OutlinedTextField(
                     value = odometer,
                     onValueChange = { 
                         odometer = it
                         errorMessage = null
+                        scanError = null
                     },
                     label = { Text(stringResource(R.string.odometer)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1176,8 +1246,11 @@ fun AddFuelEntryDialog(
                         }
                     },
                     supportingText = {
+                        val scanMessage = scanError
                         if (errorMessage != null) {
                             Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+                        } else if (scanMessage != null) {
+                            Text(text = stringResource(scanMessage), color = MaterialTheme.colorScheme.error)
                         }
                     }
                 )
