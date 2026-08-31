@@ -50,7 +50,6 @@
     <string name="efficiency_trend">Efficiency Trend</string>
     <string name="liters_value">%1$s liters</string>
     <string name="full_tank">Full tank</string>
-    <string name="full_tank_hint">Uncheck if this was a partial refuel</string>
     <string name="partial">PARTIAL</string>
     <!-- Actions -->
     <string name="save">Save</string>

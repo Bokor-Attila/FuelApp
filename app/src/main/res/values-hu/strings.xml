@@ -50,7 +50,6 @@
     <string name="efficiency_trend">Fogyasztási trend</string>
     <string name="liters_value">%1$s liter</string>
     <string name="full_tank">Tele tank</string>
-    <string name="full_tank_hint">Vedd ki a pipát, ha csak részben tankoltál</string>
     <string name="partial">RÉSZLEGES</string>
     <!-- Műveletek -->
     <string name="save">Mentés</string>
