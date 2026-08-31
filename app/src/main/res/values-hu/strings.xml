@@ -96,4 +96,5 @@
     <string name="trend_better">Az utolsó tank %1$s%%-kal jobb az átlagodnál</string>
     <string name="trend_steady">Az utolsó tank az átlagodnak megfelelő</string>
     <string name="by_month">Havi bontás</string>
+    <string name="widget_description">A kiválasztott jármű átlagfogyasztása</string>
 </resources>
