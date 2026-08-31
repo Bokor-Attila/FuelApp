@@ -96,4 +96,5 @@
     <string name="trend_better">Last tank %1$s%% better than your average</string>
     <string name="trend_steady">Last tank is in line with your average</string>
     <string name="by_month">By month</string>
+    <string name="widget_description">Average consumption for the selected vehicle</string>
 </resources>

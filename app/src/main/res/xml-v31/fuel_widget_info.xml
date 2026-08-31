@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    From API 31 the launcher renders previewLayout itself, so the picker shows the real
+    widget instead of falling back to the app icon.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:initialLayout="@layout/fuel_widget"
+    android:previewLayout="@layout/fuel_widget"
     android:previewImage="@drawable/widget_preview"
+    android:description="@string/widget_description"
     android:minWidth="140dp"
     android:minHeight="70dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
     android:updatePeriodMillis="86400000"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
