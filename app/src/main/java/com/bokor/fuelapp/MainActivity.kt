@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
             val viewModel: FuelViewModel = viewModel(
                 factory = FuelViewModelFactory(
                     application,
+                    app.database,
                     app.database.fuelDao(),
                     app.database.vehicleDao(),
                     app.settings

@@ -57,6 +57,9 @@ interface FuelDao {
     @Query("SELECT * FROM fuel_entries ORDER BY date DESC")
     fun getAllEntries(): Flow<List<FuelEntry>>
 
+    @Query("SELECT * FROM fuel_entries")
+    suspend fun getAllEntriesOnce(): List<FuelEntry>
+
     @Insert
     suspend fun insert(entry: FuelEntry)
 

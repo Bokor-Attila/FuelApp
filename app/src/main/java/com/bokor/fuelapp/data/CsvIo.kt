@@ -3,6 +3,7 @@ package com.bokor.fuelapp.data
 import android.content.Intent
 import androidx.compose.foundation.layout.size
 import androidx.core.content.FileProvider
+import com.bokor.fuelapp.R
 import com.bokor.fuelapp.data.FuelEntry
 import com.bokor.fuelapp.data.Vehicle
 import java.io.File
@@ -42,7 +43,7 @@ fun exportEntriesToCsv(context: android.content.Context, rows: List<Pair<FuelEnt
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(intent, "Export Fuel Data"))
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.export_chooser_title)))
         true
     } catch (e: Exception) {
         e.printStackTrace()

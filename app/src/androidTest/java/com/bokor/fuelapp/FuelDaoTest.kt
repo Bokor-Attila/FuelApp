@@ -5,12 +5,16 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bokor.fuelapp.data.FuelDatabase
 import com.bokor.fuelapp.data.FuelEntry
+import com.bokor.fuelapp.data.ImportResult
+import com.bokor.fuelapp.data.ImportedEntry
 import com.bokor.fuelapp.data.Vehicle
+import com.bokor.fuelapp.data.importRows
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,5 +74,37 @@ class FuelDaoTest {
         assertEquals(0, db.fuelDao().countForVehicle(car))
         assertEquals(1, db.fuelDao().countForVehicle(van))
         assertEquals(1, db.fuelDao().getAllEntries().first().size)
+    }
+
+    /**
+     * The unnamed row points at a vehicle that does not exist, so the insert fails on the
+     * foreign key after "Van" has been created. The whole import must roll back.
+     */
+    @Test
+    fun aFailedImportLeavesNoVehiclesOrEntriesBehind() = runBlocking {
+        val car = db.vehicleDao().insert(Vehicle(name = "Car")).toInt()
+        val rows = listOf(
+            ImportedEntry(entry(0, 1000.0), vehicleName = "Van"),
+            ImportedEntry(entry(0, 2000.0), vehicleName = null)
+        )
+
+        try {
+            db.importRows(rows, fallbackVehicleId = 999)
+            fail("Import should have failed on the foreign key")
+        } catch (_: android.database.sqlite.SQLiteConstraintException) {
+        }
+
+        assertEquals(listOf(car), db.vehicleDao().getAllVehiclesOnce().map { it.id })
+        assertEquals(0, db.fuelDao().getAllEntriesOnce().size)
+    }
+
+    @Test
+    fun importingTheSameRowsTwiceSkipsTheSecondCopy() = runBlocking {
+        val car = db.vehicleDao().insert(Vehicle(name = "Car")).toInt()
+        val rows = listOf(ImportedEntry(entry(0, 1000.0), vehicleName = "Car"))
+
+        assertEquals(ImportResult(inserted = 1, skipped = 0), db.importRows(rows, car))
+        assertEquals(ImportResult(inserted = 0, skipped = 1), db.importRows(rows, car))
+        assertEquals(1, db.fuelDao().countForVehicle(car))
     }
 }

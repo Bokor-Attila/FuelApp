@@ -136,7 +136,7 @@ fun FuelEntryItem(
             
             Box {
                 IconButton(onClick = { showMenu = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
