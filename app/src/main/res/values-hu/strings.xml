@@ -13,6 +13,9 @@
     <string name="delete_entry">Törlés</string>
     <string name="error_odometer_low">A kilométeróra állása nem lehet kevesebb az előzőnél (%1$.0f km)</string>
     <string name="error_odometer_required">Add meg a kilométeróra állását</string>
+    <string name="error_odometer_high">A kilométeróra állása nem lehet több a következőnél (%1$.0f km)</string>
+    <string name="error_odometer_range">Erre a dátumra a kilométeróra állása %1$.0f km és %2$.0f km között lehet</string>
+    <string name="error_odometer_duplicate">Ezen a napon már van tankolás ezzel az állással</string>
     <string name="error_amount_required">Add meg a mennyiséget és az egységárat, vagy a végösszeget</string>
     <string name="stats_total_distance">Összes távolság</string>
     <string name="stats_total_fuel">Összes üzemanyag</string>
@@ -26,6 +29,7 @@
     <string name="total_amount">Összeg (%1$s)</string>
     <string name="auto_calculate_hint">Hagyja üresen az egyiket az automatikus számításhoz</string>
     <string name="date_label">Dátum</string>
+    <string name="select_date">Dátum kiválasztása</string>
     <!-- Járművek -->
     <string name="default_vehicle_name">Autóm</string>
     <string name="vehicles">Járművek</string>
@@ -62,9 +66,11 @@
     <string name="undo">Visszavonás</string>
     <string name="no_entries">Még nincs tankolás. Koppints a + gombra az elsőhöz.</string>
     <string name="csv_imported">%1$d tankolás importálva</string>
+    <string name="csv_imported_with_skipped">%1$d tankolás importálva, %2$d már szerepelt a naplóban</string>
     <string name="csv_import_empty">Nem található tankolás a fájlban</string>
     <string name="csv_import_failed">A fájl nem olvasható</string>
     <string name="csv_export_failed">A napló exportálása nem sikerült</string>
+    <string name="export_chooser_title">Üzemanyag napló exportálása</string>
     <string name="scan_no_digits">Nem sikerült számot felismerni. Töltsd ki a keretet a kilométeróra állásával.</string>
     <string name="scan_failed">A leolvasás nem sikerült. Add meg kézzel az értéket.</string>
     <!-- Statisztika -->

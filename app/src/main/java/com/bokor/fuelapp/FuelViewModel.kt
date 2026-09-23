@@ -6,11 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.bokor.fuelapp.data.FuelDao
+import com.bokor.fuelapp.data.FuelDatabase
 import com.bokor.fuelapp.data.FuelEntry
+import com.bokor.fuelapp.data.ImportResult
 import com.bokor.fuelapp.data.ImportedEntry
 import com.bokor.fuelapp.data.SettingsRepository
 import com.bokor.fuelapp.data.Vehicle
 import com.bokor.fuelapp.data.VehicleDao
+import com.bokor.fuelapp.data.importRows
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +27,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class FuelViewModel(
     private val application: Application,
+    private val database: FuelDatabase,
     private val fuelDao: FuelDao,
     private val vehicleDao: VehicleDao,
     private val settings: SettingsRepository
@@ -101,26 +105,10 @@ class FuelViewModel(
         }
     }
 
-    /**
-     * Rows naming a vehicle are matched to it by name, creating it when unknown, so a
-     * multi-vehicle export restores fully. Rows without a name land on the current vehicle.
-     */
-    fun importEntries(rows: List<ImportedEntry>) {
-        viewModelScope.launch {
-            val fallbackId = selectedVehicle.value?.id ?: return@launch
-            val byName = vehicleDao.getAllVehiclesOnce().associate { it.name to it.id }.toMutableMap()
-
-            val resolved = rows.map { row ->
-                val name = row.vehicleName?.takeIf { it.isNotBlank() }
-                val vehicleId = when {
-                    name == null -> fallbackId
-                    byName.containsKey(name) -> byName.getValue(name)
-                    else -> vehicleDao.insert(Vehicle(name = name)).toInt().also { byName[name] = it }
-                }
-                row.entry.copy(vehicleId = vehicleId)
-            }
-
-            fuelDao.insertAll(resolved)
+    /** Imports into the selected vehicle by default; see [importRows] for the matching rules. */
+    suspend fun importEntries(rows: List<ImportedEntry>): ImportResult {
+        val fallbackId = selectedVehicle.value?.id ?: return ImportResult(inserted = 0, skipped = 0)
+        return database.importRows(rows, fallbackId).also {
             FuelWidgetProvider.triggerUpdate(application)
         }
     }
@@ -171,6 +159,7 @@ class FuelViewModel(
 
 class FuelViewModelFactory(
     private val application: Application,
+    private val database: FuelDatabase,
     private val fuelDao: FuelDao,
     private val vehicleDao: VehicleDao,
     private val settings: SettingsRepository
@@ -178,7 +167,7 @@ class FuelViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FuelViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return FuelViewModel(application, fuelDao, vehicleDao, settings) as T
+            return FuelViewModel(application, database, fuelDao, vehicleDao, settings) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

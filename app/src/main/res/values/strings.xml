@@ -13,6 +13,9 @@
     <string name="delete_entry">Delete Entry</string>
     <string name="error_odometer_low">Odometer must be higher than previous (%1$.0f km)</string>
     <string name="error_odometer_required">Enter the odometer reading</string>
+    <string name="error_odometer_high">Odometer must be lower than the next fill-up (%1$.0f km)</string>
+    <string name="error_odometer_range">Odometer must be between %1$.0f km and %2$.0f km for this date</string>
+    <string name="error_odometer_duplicate">Another fill-up on this day already has this reading</string>
     <string name="error_amount_required">Enter the amount and price per liter, or the total</string>
     <string name="stats_total_distance">Total Distance</string>
     <string name="stats_total_fuel">Total Fuel</string>
@@ -26,6 +29,7 @@
     <string name="total_amount">Total Amount (%1$s)</string>
     <string name="auto_calculate_hint">Leave one empty to auto-calculate</string>
     <string name="date_label">Date</string>
+    <string name="select_date">Select date</string>
     <!-- Vehicles -->
     <string name="default_vehicle_name">My Car</string>
     <string name="vehicles">Vehicles</string>
@@ -62,9 +66,11 @@
     <string name="undo">Undo</string>
     <string name="no_entries">No fill-ups yet. Tap + to log your first one.</string>
     <string name="csv_imported">Imported %1$d fill-ups</string>
+    <string name="csv_imported_with_skipped">Imported %1$d fill-ups, skipped %2$d already logged</string>
     <string name="csv_import_empty">No fill-ups found in that file</string>
     <string name="csv_import_failed">Could not read that file</string>
     <string name="csv_export_failed">Could not export the log</string>
+    <string name="export_chooser_title">Export fuel log</string>
     <string name="scan_no_digits">No numbers recognised. Try again with the odometer filling the box.</string>
     <string name="scan_failed">Scanning failed. Enter the reading manually.</string>
     <!-- Statistics -->

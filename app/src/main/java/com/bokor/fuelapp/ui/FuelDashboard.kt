@@ -111,9 +111,13 @@ fun FuelDashboard(
                     imported == null -> snackbarHostState.showSnackbar(importFailed)
                     imported.isEmpty() -> snackbarHostState.showSnackbar(importEmpty)
                     else -> {
-                        viewModel.importEntries(imported)
+                        val result = viewModel.importEntries(imported)
                         snackbarHostState.showSnackbar(
-                            resources.getString(R.string.csv_imported, imported.size)
+                            if (result.skipped == 0) {
+                                resources.getString(R.string.csv_imported, result.inserted)
+                            } else {
+                                resources.getString(R.string.csv_imported_with_skipped, result.inserted, result.skipped)
+                            }
                         )
                     }
                 }
@@ -287,7 +291,7 @@ fun FuelDashboard(
     if (showAddDialog) {
         AddFuelEntryDialog(
             currency = currency,
-            lastOdometer = entries.firstOrNull()?.odometer ?: 0.0,
+            entries = entries,
             onDismiss = { showAddDialog = false },
             onConfirm = { date, odo, l, price, isFull ->
                 viewModel.addEntry(date, odo, l, price, isFull)
@@ -300,6 +304,7 @@ fun FuelDashboard(
         AddFuelEntryDialog(
             initialEntry = entryToEdit,
             currency = currency,
+            entries = entries,
             onDismiss = { entryToEdit = null },
             onConfirm = { date, odo, l, price, isFull ->
                 entryToEdit?.let {

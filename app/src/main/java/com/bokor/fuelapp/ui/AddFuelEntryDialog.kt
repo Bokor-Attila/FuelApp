@@ -3,6 +3,7 @@ package com.bokor.fuelapp.ui
 import android.Manifest
 import android.app.DatePickerDialog
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -39,12 +40,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.bokor.fuelapp.OdometerScanner
+import com.bokor.fuelapp.domain.OdometerError
+import com.bokor.fuelapp.domain.validateOdometer
 import com.bokor.fuelapp.R
 import com.bokor.fuelapp.data.FuelEntry
 import com.bokor.fuelapp.domain.toAmountOrNull
@@ -60,7 +64,8 @@ import androidx.compose.runtime.setValue
 fun AddFuelEntryDialog(
     initialEntry: FuelEntry? = null,
     currency: String,
-    lastOdometer: Double = 0.0,
+    /** The vehicle's log, which the odometer reading has to fit into. */
+    entries: List<FuelEntry> = emptyList(),
     onDismiss: () -> Unit,
     onConfirm: (Long, Double, Double, Double, Boolean) -> Unit
 ) {
@@ -78,7 +83,7 @@ fun AddFuelEntryDialog(
     var scanError by remember { mutableStateOf<Int?>(null) }
     
     val context = LocalContext.current
-    val odometerTooLowMessage = stringResource(R.string.error_odometer_low, lastOdometer)
+    val resources = LocalResources.current
     val odometerRequiredMessage = stringResource(R.string.error_odometer_required)
     val amountRequiredMessage = stringResource(R.string.error_amount_required)
     val calendar = Calendar.getInstance().apply { timeInMillis = date }
@@ -270,7 +275,7 @@ fun AddFuelEntryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
+                            Icon(Icons.Default.CalendarToday, contentDescription = stringResource(R.string.select_date))
                         }
                     }
                 )
@@ -292,9 +297,10 @@ fun AddFuelEntryDialog(
                     if (l <= 0 && p > 0 && t > 0) l = t / p
                     if (p <= 0 && l > 0 && t > 0) p = t / l
                     
+                    val odometerError = validateOdometer(odo, date, entries, initialEntry?.id)
                     when {
                         odo <= 0 -> errorMessage = odometerRequiredMessage
-                        odo <= lastOdometer && initialEntry == null -> errorMessage = odometerTooLowMessage
+                        odometerError != null -> errorMessage = odometerErrorMessage(resources, odometerError)
                         l <= 0 || p <= 0 -> amountError = amountRequiredMessage
                         else -> onConfirm(date, odo, l, p, isFull)
                     }
@@ -309,4 +315,14 @@ fun AddFuelEntryDialog(
             }
         }
     )
+}
+
+private fun odometerErrorMessage(resources: Resources, error: OdometerError): String = when (error) {
+    OdometerError.Duplicate -> resources.getString(R.string.error_odometer_duplicate)
+    is OdometerError.OutOfRange -> when {
+        error.above != null && error.below != null ->
+            resources.getString(R.string.error_odometer_range, error.above, error.below)
+        error.below != null -> resources.getString(R.string.error_odometer_high, error.below)
+        else -> resources.getString(R.string.error_odometer_low, error.above ?: 0.0)
+    }
 }
